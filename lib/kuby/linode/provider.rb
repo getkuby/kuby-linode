@@ -6,51 +6,32 @@ module Kuby
     class Provider
       KUBECONFIG_EXPIRATION = 7.days
 
-      attr_reader :definition, :config
-
-      def initialize(definition)
-        @definition = definition
-        @config = Config.new
-      end
+      attr_reader :config
 
       def configure(&block)
         config.instance_eval(&block)
       end
 
-      def setup
-        # no setup steps :)
-      end
-
-      def deploy
-        deployer.deploy
-      end
-
-      def kubernetes_cli
-        @kubernetes_cli ||= Kuby::Kubernetes::CLI.new(kubeconfig_path).tap do |cli|
-          cli.before_execute do
-            FileUtils.mkdir_p(kubeconfig_dir)
-            refresh_kubeconfig
-          end
-        end
-      end
-
       def kubeconfig_path
         @kubeconfig_path ||= kubeconfig_dir.join(
           "#{definition.app_name.downcase}-kubeconfig.yaml"
-        )
+        ).to_s
       end
 
       private
 
+      def after_initialize
+        @config = Config.new
+
+        kubernetes_cli.before_execute do
+          FileUtils.mkdir_p(kubeconfig_dir)
+          refresh_kubeconfig
+        end
+      end
+
       def client
         @client ||= Client.create(
           access_token: config.access_token
-        )
-      end
-
-      def deployer
-        @deployer ||= Kuby::Kubernetes::Deployer.new(
-          definition.kubernetes.resources, kubernetes_cli
         )
       end
 
