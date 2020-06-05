@@ -1,4 +1,3 @@
-require 'colorized_string'
 require 'fileutils'
 
 module Kuby
@@ -37,10 +36,10 @@ module Kuby
 
       def refresh_kubeconfig
         return unless should_refresh_kubeconfig?
-        Kuby.logger.info(ColorizedString['Refreshing kubeconfig...'].yellow)
+        Kuby.logger.info('Refreshing kubeconfig...')
         kubeconfig = client.kubeconfig(config.cluster_id)
         File.write(kubeconfig_path, kubeconfig)
-        Kuby.logger.info(ColorizedString['Successfully refreshed kubeconfig!'].yellow)
+        Kuby.logger.info('Successfully refreshed kubeconfig!')
       end
 
       def should_refresh_kubeconfig?
