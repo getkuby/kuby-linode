@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.version  = ::Kuby::Linode::VERSION
   s.authors  = ['Cameron Dutro']
   s.email    = ['camertron@gmail.com']
-  s.homepage = 'http://github.com/camertron/kuby-linode'
+  s.homepage = 'http://github.com/getkuby/kuby-linode'
 
   s.description = s.summary = 'Linode provider for Kuby.'
 
@@ -16,5 +16,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'kube-dsl', '~> 0.1'
 
   s.require_path = 'lib'
-  s.files = Dir['{lib,spec}/**/*', 'Gemfile', 'CHANGELOG.md', 'README.md', 'Rakefile', 'kuby-linode.gemspec']
+  s.files = Dir['{lib,spec}/**/*', 'Gemfile', 'LICENSE', 'CHANGELOG.md', 'README.md', 'Rakefile', 'kuby-linode.gemspec']
 end

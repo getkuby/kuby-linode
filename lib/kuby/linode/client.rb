@@ -26,7 +26,7 @@ module Kuby
 
     class Client
       API_URL = 'https://api.linode.com'.freeze
-      KUBECONFIG_PATH = '/v4beta/lke/clusters/%{cluster_id}/kubeconfig'.freeze
+      KUBECONFIG_PATH = '/v4/lke/clusters/%{cluster_id}/kubeconfig'.freeze
 
       def self.create(access_token:)
         options = {

@@ -2,8 +2,9 @@ require 'fileutils'
 
 module Kuby
   module Linode
-    class Provider
+    class Provider < Kuby::Kubernetes::Provider
       KUBECONFIG_EXPIRATION = 7.days
+      STORAGE_CLASS_NAME = 'linode-block-storage'.freeze
 
       attr_reader :config
 
@@ -17,15 +18,18 @@ module Kuby
         ).to_s
       end
 
+      def after_configuration
+        refresh_kubeconfig
+      end
+
+      def storage_class_name
+        STORAGE_CLASS_NAME
+      end
+
       private
 
       def after_initialize
         @config = Config.new
-
-        kubernetes_cli.before_execute do
-          FileUtils.mkdir_p(kubeconfig_dir)
-          refresh_kubeconfig
-        end
       end
 
       def client
@@ -36,6 +40,7 @@ module Kuby
 
       def refresh_kubeconfig
         return unless should_refresh_kubeconfig?
+        FileUtils.mkdir_p(kubeconfig_dir)
         Kuby.logger.info('Refreshing kubeconfig...')
         kubeconfig = client.kubeconfig(config.cluster_id)
         File.write(kubeconfig_path, kubeconfig)
