@@ -3,7 +3,7 @@ require 'fileutils'
 module Kuby
   module Linode
     class Provider < Kuby::Kubernetes::Provider
-      KUBECONFIG_EXPIRATION = 7.days
+      KUBECONFIG_EXPIRATION = 7 * 24 * 60 * 60  # 7 days
       STORAGE_CLASS_NAME = 'linode-block-storage'.freeze
 
       attr_reader :config
