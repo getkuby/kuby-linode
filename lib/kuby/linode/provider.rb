@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'tmpdir'
 
 module Kuby
   module Linode
@@ -13,9 +14,9 @@ module Kuby
       end
 
       def kubeconfig_path
-        @kubeconfig_path ||= kubeconfig_dir.join(
-          "#{definition.app_name.downcase}-kubeconfig.yaml"
-        ).to_s
+        @kubeconfig_path ||= File.join(
+          kubeconfig_dir, "#{definition.app_name.downcase}-kubeconfig.yaml"
+        )
       end
 
       def after_configuration
@@ -30,6 +31,10 @@ module Kuby
 
       def after_initialize
         @config = Config.new
+
+        kubernetes_cli.before_execute do
+          refresh_kubeconfig
+        end
       end
 
       def client
@@ -53,8 +58,8 @@ module Kuby
       end
 
       def kubeconfig_dir
-        @kubeconfig_dir ||= definition.app.root.join(
-          'tmp', 'kuby-linode'
+        @kubeconfig_dir ||= File.join(
+          Dir.tmpdir, 'kuby-linode'
         )
       end
     end
