@@ -19,7 +19,11 @@ module Kuby
         )
       end
 
-      def after_configuration
+      def before_setup
+        refresh_kubeconfig
+      end
+
+      def before_deploy(*)
         refresh_kubeconfig
       end
 
