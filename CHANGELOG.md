@@ -1,3 +1,6 @@
+## 0.3.1
+* Avoid `instance_eval`ing a `nil` block during configuration.
+
 ## 0.3.0
 * Accept `environment` instead of `definition` instances.
 
