@@ -5,7 +5,7 @@ module Kuby
   module Linode
     class Provider < Kuby::Kubernetes::Provider
       KUBECONFIG_EXPIRATION = 7 * 24 * 60 * 60  # 7 days
-      STORAGE_CLASS_NAME = 'linode-block-storage'.freeze
+      STORAGE_CLASS_NAME = 'linode-block-storage-retain'.freeze
 
       attr_reader :config
 
@@ -15,7 +15,8 @@ module Kuby
 
       def kubeconfig_path
         @kubeconfig_path ||= File.join(
-          kubeconfig_dir, "#{environment.app_name.downcase}-kubeconfig.yaml"
+          kubeconfig_dir,
+          "#{environment.app_name.downcase}-#{config.hash_value}-kubeconfig.yaml"
         )
       end
 
@@ -31,14 +32,18 @@ module Kuby
         STORAGE_CLASS_NAME
       end
 
+      def kubernetes_cli
+        @kubernetes_cli ||= ::KubernetesCLI.new(kubeconfig_path).tap do |cli|
+          cli.before_execute do
+            refresh_kubeconfig
+          end
+        end
+      end
+
       private
 
       def after_initialize
         @config = Config.new
-
-        kubernetes_cli.before_execute do
-          refresh_kubeconfig
-        end
       end
 
       def client

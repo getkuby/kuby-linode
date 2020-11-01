@@ -13,14 +13,16 @@ All providers adhere to a specific interface, meaning you can swap out one provi
 Enable the Linode provider like so:
 
 ```ruby
-Kuby.define(:production) do
-  kubernetes do
+Kuby.define('MyApp') do
+  environment(:production) do
+    kubernetes do
 
-    provider :linode do
-      access_token 'my-linode-access-token'
-      cluster_id 'my-cluster-id'
+      provider :linode do
+        access_token 'my-linode-access-token'
+        cluster_id 'my-cluster-id'
+      end
+
     end
-
   end
 end
 ```

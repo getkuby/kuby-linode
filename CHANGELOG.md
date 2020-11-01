@@ -1,3 +1,8 @@
+## 0.3.2
+* Add a unique hash of the configuration options to the kubeconfig path.
+* Update README with new environment syntax.
+* Use `linode-block-storage-retain` storage class to prevent losing block storage volumes when PVCs are deleted.
+
 ## 0.3.1
 * Avoid `instance_eval`ing a `nil` block during configuration.
 
