@@ -1,5 +1,6 @@
 require 'base64'
-require 'faraday'
+require 'net/http'
+require 'uri'
 
 module Kuby
   module Linode
@@ -24,31 +25,40 @@ module Kuby
       end
     end
 
+    class BearerAuth
+      attr_reader :access_token
+
+      def initialize(access_token:)
+        @access_token = access_token
+      end
+
+      def make_get(path)
+        Net::HTTP::Get.new(path).tap do |request|
+          request['Authorization'] = "Bearer #{access_token}"
+        end
+      end
+    end
+
     class Client
       API_URL = 'https://api.linode.com'.freeze
       KUBECONFIG_PATH = '/v4/lke/clusters/%{cluster_id}/kubeconfig'.freeze
 
       def self.create(access_token:)
-        options = {
-          url: API_URL,
-          headers: {
-            Accept: 'application/json',
-            Authorization: "Bearer #{access_token}"
-          }
-        }
+        uri = URI(API_URL)
 
-        new(
-          Faraday.new(options) do |faraday|
-            faraday.request(:retry, max: 3)
-            faraday.adapter(:net_http)
-          end
-        )
+        connection = Net::HTTP.new(uri.host, uri.port).tap do |http|
+          http.use_ssl = true if uri.scheme == 'https'
+        end
+
+        auth = BearerAuth.new(access_token: access_token)
+        new(connection, auth)
       end
 
-      attr_reader :connection
+      attr_reader :connection, :auth
 
-      def initialize(connection)
+      def initialize(connection, auth)
         @connection = connection
+        @auth = auth
       end
 
       def kubeconfig(cluster_id)
@@ -58,32 +68,25 @@ module Kuby
 
       private
 
-      def get(url, params = {})
-        act(:get, url, params)
-      end
-
-      def get_json(url, params = {})
-        response = get(url, params)
+      def get_json(path)
+        request = auth.make_get(path)
+        request['Accept'] = 'application/json'
+        response = connection.request(request)
+        potentially_raise_error!(response)
         JSON.parse(response.body)
       end
 
-      def act(verb, *args)
-        connection.send(verb, *args).tap do |response|
-          potentially_raise_error!(response)
-        end
-      end
-
       def potentially_raise_error!(response)
-        case response.status
+        case response.code.to_i
           when 401
-            raise UnauthorizedError, "401 Unauthorized: #{response.env.url}"
+            raise UnauthorizedError, "401 Unauthorized: #{response.message}"
           when 404
-            raise NotFoundError, "404 Not Found: #{response.env.url}"
+            raise NotFoundError, "404 Not Found: #{response.message}"
           else
             if failure_response?(response)
               raise ApiError.new(
-                "HTTP #{response.status}: #{response.env.url}, body: #{response.body}",
-                response.status
+                "HTTP #{response.code}: #{response.message}, body: #{response.body}",
+                response.code
               )
             end
         end
@@ -91,7 +94,7 @@ module Kuby
 
       def failure_response?(response)
         data = JSON.parse(response.body) rescue {}
-        (response.status / 100) != 2 || data['message'] == 'failure'
+        (response.code.to_i / 100) != 2 || data['message'] == 'failure'
       end
     end
   end

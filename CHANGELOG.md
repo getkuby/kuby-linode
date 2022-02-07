@@ -1,3 +1,6 @@
+## 0.4.0
+* Remove Faraday dependency.
+
 ## 0.3.2
 * Add a unique hash of the configuration options to the kubeconfig path.
 * Update README with new environment syntax.

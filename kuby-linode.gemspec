@@ -12,7 +12,6 @@ Gem::Specification.new do |s|
 
   s.platform = Gem::Platform::RUBY
 
-  s.add_dependency 'faraday', '~> 0.17'
   s.add_dependency 'kube-dsl', '~> 0.1'
 
   s.require_path = 'lib'
