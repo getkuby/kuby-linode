@@ -29,6 +29,16 @@ end
 
 Once configured, you should be able to run all the Kuby rake tasks as you would with any provider.
 
+## Locating Your Cluster ID
+
+The cluster ID can be found by visiting your Kubernetes cluster's summary page in the Linode dashboard. On that page, the ID will be included in the URL and as part of the name of each node in the node pool:
+
+![image](https://user-images.githubusercontent.com/575280/188511347-79263953-1abe-45ee-91d2-56710c037450.png)
+
+In the URL:
+
+![image](https://user-images.githubusercontent.com/575280/188511380-532b7717-54a5-43b3-b2e8-2c4af3d23267.png)
+
 ## License
 
 Licensed under the MIT license. See LICENSE for details.
